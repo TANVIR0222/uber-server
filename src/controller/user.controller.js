@@ -107,3 +107,18 @@ export const logoutUser = asyncHandler(async (req,res) => {
     .json(new ApiResponse(200, {} , "user logout success full "));
 
 })
+
+
+//  user profile
+export const getUserProfile = asyncHandler(async (req,res) => {
+    const {id} = req.params;
+    // check if user exist
+    const user = await UserModel.find({_id :{$in : id}})
+    if (!user) {
+        return res
+        .status(404)
+        .json(new ApiResponse(404, null, "User not found! try again"));
+    }
+    // return user profile
+    res.status(200).json(new ApiResponse(200, user , "User profile successfull"));
+})
