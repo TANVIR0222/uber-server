@@ -3,30 +3,49 @@ import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/AsyncHandler.js";
 
-
-export const userRegister = asyncHandler(async(req , res) => {
-    const { email , password ,  firstname ,lastname} = req.body;
-    
+// user register
+export const userRegister = asyncHandler(async (req, res) => {
+  try {
+    const { email, password, firstname, lastname } = req.body;
 
     //  check all fields are filled
-    if(
-        [firstname , lastname , email , password].some((field) => field?.trim() === "")
-    ){
-        throw new ApiError(404 , " Please fill in all fields");
+    if (
+      [firstname, lastname, email, password].some(
+        (field) => field?.trim() === ""
+      )
+    ) {
+      throw new ApiError(404, " Please fill in all fields");
     }
 
-
-    const existingUser = await UserModel.findOne({ $or :[{email }] });
-    if(existingUser){
-        res.status(201).json(new ApiResponse(404, null , "User already exists"));
+    // check if email is all ready in use
+    const existingUser = await UserModel.findOne({ $or: [{ email }] });
+    if (existingUser) {
+      res.status(201).json(new ApiResponse(404, null, "User already exists"));
     }
 
-    const user = await UserModel.create({ email , password ,  firstname ,lastname});
+    // create new user
+    const user = await UserModel.create({
+      email,
+      password,
+      firstname,
+      lastname,
+    });
 
-    return res.status(201).json( new ApiResponse(200, user , "user register success full ") );
-    
-    
 
-})
+    // cheack if user is created
+    const cretateUser = await UserModel.findOne({ _id: user._id });
+    if(!cretateUser){
+        return res
+        .status(401)
+        .json(new ApiResponse(401, user, " User not found! try again"));
+    }
 
-
+    return res
+      .status(201)
+      .json(new ApiResponse(200, cretateUser, "user register success full "));
+  } catch (error) {
+    return res
+      .status(500)
+      .json(new ApiResponse(500, null, error?.message || error));
+  }
+});
