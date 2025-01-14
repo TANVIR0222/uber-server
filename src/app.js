@@ -25,4 +25,14 @@ app.use(helmet());
 app.use(morgan())
 
 
+// router 
+import userRoutes from './router/user.router.js';
+
+
+app.use('/api/v1/user' , userRoutes);
+
+
+
+
+
 export default app;  //export the app so it can be used in other files
