@@ -27,9 +27,11 @@ app.use(morgan())
 
 // router 
 import userRoutes from './router/user.router.js';
+import captainRouter from './router/captain.router.js';
 
 
 app.use('/api/v1/user' , userRoutes);
+app.use('/api/v1/rider' , captainRouter);
 
 
 

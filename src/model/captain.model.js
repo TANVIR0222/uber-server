@@ -81,5 +81,5 @@ captainSchema.methods.generateAccessToken = function () {
   });
 };
 
-const CaptainModel = mongoose.model("User", captainSchema);
+const CaptainModel = mongoose.model("Captain", captainSchema);
 export default CaptainModel; // export the model
