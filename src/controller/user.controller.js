@@ -58,15 +58,15 @@ export const userRegister = asyncHandler(async (req, res) => {
 //  user login
 export const userLogin = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
+  console.log(email , password);
   
-    //  check if all fields are filled
+
   if (![email ||  password]) {
     return res
       .status(404)
       .json(new ApiResponse(404, null, " Please fill in all fields"));
   }
 
-  // check if email is all ready in use
   const user = await UserModel.findOne({email}).select('+password')  
   if (!user) {
     return res
@@ -74,7 +74,6 @@ export const userLogin = asyncHandler(async (req, res) => {
       .json(new ApiResponse(401, null, "User not found! try again"));
   }
 
-  // check if password is correct
   const isMatchPassword = await user.isPasswordCorrect(password);
   if (!isMatchPassword) {
     return res
@@ -82,13 +81,12 @@ export const userLogin = asyncHandler(async (req, res) => {
       .json(new ApiResponse(401, null, "Invalid password! try again"));
     }
 
-    // generate token
     const token = await user.generateAccessToken();
 
-    res.status(200).cookie("accessToken" , token , options)
+    res.status(200)
+    .cookie("accessToken" , token , options)
 
-    //
-    return res
+    res
     .status(200)
     .json(new ApiResponse(200, {id : user._id , token} , "User login successfull"));
     
@@ -96,29 +94,14 @@ export const userLogin = asyncHandler(async (req, res) => {
 });
 
 
-//  user logout
+//  
 export const logoutUser = asyncHandler(async (req,res) => {
 
-    // remove token
     const userid = req.userId;
 
+    
     res.status(200)
     .clearCookie("accessToken"  , options)
     .json(new ApiResponse(200, {} , "user logout success full "));
 
-})
-
-
-//  user profile
-export const getUserProfile = asyncHandler(async (req,res) => {
-    const {id} = req.params;
-    // check if user exist
-    const user = await UserModel.find({_id :{$in : id}})
-    if (!user) {
-        return res
-        .status(404)
-        .json(new ApiResponse(404, null, "User not found! try again"));
-    }
-    // return user profile
-    res.status(200).json(new ApiResponse(200, user , "User profile successfull"));
 })
