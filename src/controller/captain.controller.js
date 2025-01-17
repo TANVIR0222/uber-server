@@ -102,3 +102,14 @@ export const captainLogin = asyncHandler(async (req, res) => {
       
   
 });
+
+//  
+export const logouCaptain = asyncHandler(async (req,res) => {
+
+    const userid = req.userId;
+
+    res.status(200)
+    .clearCookie("accessToken"  , options)
+    .json(new ApiResponse(200, {} , "user logout success full "));
+
+})
