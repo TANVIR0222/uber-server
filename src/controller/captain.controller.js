@@ -3,6 +3,12 @@ import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/AsyncHandler.js";
 
+// cookies optins 
+const options = {
+    httpOnly: true,
+    secure : true,
+}
+
 // user register
 export const captainRegister = asyncHandler(async (req, res) => {
     try {
@@ -58,3 +64,41 @@ export const captainRegister = asyncHandler(async (req, res) => {
     }
   });
   
+
+  //  user login
+export const captainLogin = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+    console.log(email , password);
+    
+  
+    if (![email ||  password]) {
+      return res
+        .status(404)
+        .json(new ApiResponse(404, null, " Please fill in all fields"));
+    }
+  
+    const user = await CaptainModel.findOne({email}).select('+password')  
+    if (!user) {
+      return res
+        .status(401)
+        .json(new ApiResponse(401, null, "User not found! try again"));
+    }
+  
+    const isMatchPassword = await user.isPasswordCorrect(password);
+    if (!isMatchPassword) {
+      return res
+        .status(401)
+        .json(new ApiResponse(401, null, "Invalid password! try again"));
+      }
+  
+      const token = await user.generateAccessToken();
+  
+      res.status(200)
+      .cookie("accessToken" , token , options)
+  
+      res
+      .status(200)
+      .json(new ApiResponse(200, {id : user._id , token} , "User login successfull"));
+      
+  
+});
